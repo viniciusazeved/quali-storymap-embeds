@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import geopandas as gpd
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
@@ -56,9 +55,8 @@ with c3:
 # ---------------------------------------------------------------------------
 @st.cache_data(ttl=3600, show_spinner="Carregando estacoes...")
 def _load(only_ana: bool) -> pd.DataFrame:
-    fname = "estacoes_telemetricas_ana.shp" if only_ana else "estacoes_telemetricas_todas.shp"
-    gdf = gpd.read_file(DATA_DIR / fname)
-    return pd.DataFrame(gdf.drop(columns="geometry"))
+    fname = "estacoes_telemetricas_ana.csv" if only_ana else "estacoes_telemetricas_todas.csv"
+    return pd.read_csv(DATA_DIR / fname)
 
 
 df = _load(only_ana)
