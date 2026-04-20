@@ -55,17 +55,22 @@ PALETTE = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2"]
 
 st.markdown(
     """
-    ## Os três módulos da arquitetura
+    ## Metodologia · módulos, avaliação e extensão multi-bacia
 
-    A precipitação passa pelo **SCS-CN**, que separa a parcela que gera
-    escoamento, segue pelo **hidrograma unitário distribuído (TTD)**, que
-    propaga a vazão no tempo, e é refinada pela **LSTM**, que corrige
-    padrões não capturados pela formulação simplificada.
+    Síntese das seções 3.4 a 3.10 da qualificação: os três módulos da
+    arquitetura, o estudo comparativo, o protocolo de treinamento e
+    avaliação, os dois produtos operacionais de previsão e a estratégia
+    de regionalização para bacias não monitoradas (Fase 2).
     """
 )
 
-tab_scs, tab_ttd, tab_lstm, tab_abl = st.tabs([
-    "SCS-CN", "TTD", "LSTM", "Estudo comparativo",
+tab_scs, tab_ttd, tab_lstm, tab_abl, tab_eval, tab_reg = st.tabs([
+    "SCS-CN",
+    "TTD",
+    "LSTM",
+    "Estudo comparativo",
+    "Treinamento e avaliação",
+    "Regionalização (Fase 2)",
 ])
 
 
@@ -310,8 +315,152 @@ with tab_abl:
         - **H4** — SCS-CN agrega valor quando combinado com o TTD.
         - **H5** — Modelo híbrido ($>$) LSTM puro e configuração concentrada.
 
-        Os dois modos de avaliação — previsão multi-horizonte e simulação
-        contínua — são aplicados às dez configurações, formando a base do
+        Os dois modos de avaliação, previsão multi-horizonte e simulação
+        contínua, são aplicados às dez configurações, formando a base do
         capítulo de resultados.
+        """
+    )
+
+
+# ==========================================================================
+#  Treinamento e Avaliação (§3.8 + §3.9)
+# ==========================================================================
+with tab_eval:
+    st.markdown(
+        """
+        ### Configuração experimental
+
+        A divisão temporal é cronológica, sem embaralhamento, preservando
+        a estrutura temporal dos dados e simulando a aplicação operacional
+        do modelo.
+
+        | Conjunto | Período | Proporção |
+        |:--|:--|:-:|
+        | Treino | 2021-01-01 a 2024-06-29 | ≈ 70 % |
+        | Validação (*early stopping*) | 2024-06-29 a 2025-03-30 | ≈ 15 % |
+        | Teste | 2025-03-30 a 2025-12-30 | ≈ 15 % |
+
+        Todos os dez modelos do estudo comparativo foram treinados com
+        configuração idêntica, de modo que as diferenças de desempenho
+        sejam atribuíveis exclusivamente à arquitetura.
+        """
+    )
+
+    col_hp, col_mt = st.columns(2)
+    with col_hp:
+        st.markdown(
+            """
+            #### Hiperparâmetros de treinamento
+
+            | Parâmetro | Valor |
+            |:--|:-:|
+            | Otimizador | Adam |
+            | *Learning rate* | 10⁻³ |
+            | Épocas máximas | 300 |
+            | *Early stopping* | 30 épocas |
+            | *Batch size* | 1.024 |
+            | GPU | NVIDIA RTX 3000 Ada |
+            """
+        )
+
+    with col_mt:
+        st.markdown(
+            """
+            #### Métricas e classificação
+
+            Métrica principal: NSE (Nash–Sutcliffe).
+            Complementares: KGE, PBIAS, RMSE.
+
+            | Classificação | NSE | PBIAS (%) |
+            |:--|:-:|:-:|
+            | Muito Bom | > 0,75 | < ±10 |
+            | Bom | 0,65–0,75 | ±10 a ±15 |
+            | Satisfatório | 0,50–0,65 | ±15 a ±25 |
+            | Insatisfatório | < 0,50 | > ±25 |
+
+            *Fonte: Moriasi et al. (2007).*
+            """
+        )
+
+    st.divider()
+
+    st.markdown(
+        """
+        ### Dois produtos de previsão hidrológica
+
+        A mesma arquitetura gera dois produtos operacionais distintos,
+        avaliados separadamente.
+        """
+    )
+
+    st.markdown(
+        """
+        | Característica | Previsão multi-horizonte | Simulação contínua |
+        |:--|:--|:--|
+        | Horizonte temporal | 1, 3, 6, 12, 24 h | Meses a anos |
+        | Tipo de saída | Vetor multi-horizonte | Série temporal completa |
+        | Frequência de atualização | A cada hora | Única (período completo) |
+        | Dependência de dados recentes | Alta | Baixa |
+        | Aplicação principal | Alerta hidrológico, defesa civil, operação em tempo real | Disponibilidade hídrica, outorga, regionalização |
+        | Métrica principal | NSE por horizonte | NSE da série completa |
+        """
+    )
+
+    st.caption(
+        "A avaliação nos dois contextos é essencial para garantir robustez: "
+        "bom desempenho apenas em previsão pode indicar captura de padrões "
+        "de persistência temporal; bom desempenho apenas em simulação contínua "
+        "pode ignorar a dinâmica de curto prazo. A consistência entre os dois "
+        "indica representação adequada tanto da estrutura de longo prazo "
+        "quanto da dinâmica de curto prazo."
+    )
+
+
+# ==========================================================================
+#  Regionalização (§3.10) — Fase 2
+# ==========================================================================
+with tab_reg:
+    st.markdown(
+        """
+        ### Regionalização para bacias não monitoradas
+
+        A Fase 2 estende o modelo para aproximadamente 100 bacias
+        brasileiras, avaliando a capacidade de generalização espacial
+        necessária para a aplicação em bacias sem monitoramento
+        fluviométrico (*Prediction in Ungauged Basins* — PUB).
+
+        #### Três protocolos de validação espacial
+
+        | Protocolo | Descrição |
+        |:--|:--|
+        | **R1 — Leave-One-Out** | Para cada bacia *i*, treinar com as demais e testar em *i*. Produz distribuição de NSE para *N* bacias. |
+        | **R2 — *Split* espacial estratificado** | Divide as bacias em 70 % treino, 15 % validação e 15 % teste, estratificando por área, clima e uso do solo. |
+        | **R3 — Transferência regional** | Treina em uma região (ex.: SP/MG) e testa em outra (ex.: PR/SC), avaliando generalização geográfica. |
+        """
+    )
+
+    st.markdown(
+        """
+        #### *Encoder* de atributos
+
+        Para aplicação em bacias não monitoradas, os parâmetros físicos
+        são preditos a partir de atributos estáticos da bacia, por uma
+        rede *feedforward* (MLP):
+        """
+    )
+
+    st.latex(r"[\,t_{c\_scale},\ \sigma,\ \lambda\,] = \mathrm{MLP}(\mathbf{atributos})")
+
+    st.markdown(
+        """
+        Atributos candidatos: área de drenagem, elevação média,
+        declividade média, frações de uso do solo (MapBiomas),
+        precipitação média anual e grupo hidrológico predominante.
+
+        A estratégia opera em três etapas: (A) treinamento em bacias
+        monitoradas para aprender os parâmetros físicos ótimos;
+        (B) treinamento do MLP que mapeia atributos fisiográficos para
+        esses parâmetros; e (C) aplicação em bacias não monitoradas
+        utilizando apenas atributos e precipitação como entrada.
         """
     )
