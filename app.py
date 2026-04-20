@@ -42,6 +42,10 @@ st.markdown(
     | 🎯 Hidrograma contínuo — melhor × pior | `/hidrograma_continuo_` | Seção de resultados |
     | 🎯 Eventos de cheia — melhor × pior | `/hidrograma_eventos_` | Seção de resultados |
     | 📊 Ranking NSE com slider de horizonte | `/ranking_nse` | Seção de resultados |
+    | 🎯 KPIs da Fase 1 | `/kpis_fase1` | Abertura de resultados |
+    | 🔬 Hipóteses H1–H5 | `/hipoteses_h1_h5` | Seção de hipóteses |
+    | 🎛️ Parâmetros aprendidos | `/parametros_aprendidos` | Interpretação física |
+    | ⚠️ Limitações da Fase 1 | `/limitacoes_fase1` | Fechamento de resultados |
 
     Novos widgets vão sendo adicionados conforme a narrativa do StoryMap se
     desenha. Todos usam os mesmos dados do app principal (snapshot dos

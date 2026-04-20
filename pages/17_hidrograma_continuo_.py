@@ -101,12 +101,17 @@ precip = dfw["P_mean"]
 
 def _metricas(o: np.ndarray, p: np.ndarray) -> dict[str, float]:
     if len(o) < 10:
-        return {"nse": np.nan, "rmse": np.nan, "pbias": np.nan, "r2": np.nan}
+        return {k: float("nan") for k in ("nse", "kge", "rmse", "pbias", "r2")}
     nse = 1 - np.sum((o - p) ** 2) / np.sum((o - o.mean()) ** 2)
     rmse = float(np.sqrt(np.mean((o - p) ** 2)))
     pbias = float(100 * (p.sum() - o.sum()) / o.sum())
     r2 = float(np.corrcoef(o, p)[0, 1]) ** 2
-    return {"nse": float(nse), "rmse": rmse, "pbias": pbias, "r2": r2}
+    # KGE (Gupta et al., 2009) — usa correlacao de Pearson, razao de variancias e vies
+    r = float(np.corrcoef(o, p)[0, 1])
+    alpha = float(np.std(p) / np.std(o)) if np.std(o) > 0 else float("nan")
+    beta = float(np.mean(p) / np.mean(o)) if np.mean(o) > 0 else float("nan")
+    kge = 1 - float(np.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2))
+    return {"nse": float(nse), "kge": kge, "rmse": rmse, "pbias": pbias, "r2": r2}
 
 
 # KPIs por modelo
@@ -121,9 +126,10 @@ for col, cfg in zip(kpi_cols, MODELOS):
             f"background:#f8fafc;border-radius:4px;'>"
             f"<div style='font-weight:600;color:#0f172a;font-size:13px;'>{cfg['label']}</div>"
             f"<div style='font-size:11px;color:#64748b;margin-bottom:4px;'>{cfg['descricao']}</div>"
-            f"<div style='font-size:12px;'>"
-            f"NSE: <b>{m['nse']:.3f}</b> · "
-            f"RMSE: {m['rmse']:.1f} m³/s · "
+            f"<div style='font-size:12px;line-height:1.5;'>"
+            f"NSE: <b>{m['nse']:.3f}</b> &nbsp;·&nbsp; "
+            f"KGE: <b>{m['kge']:.3f}</b><br>"
+            f"RMSE: {m['rmse']:.1f} m³/s &nbsp;·&nbsp; "
             f"PBIAS: {m['pbias']:+.1f}%"
             f"</div></div>",
             unsafe_allow_html=True,

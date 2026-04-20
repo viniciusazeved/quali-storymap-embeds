@@ -61,9 +61,14 @@ def _load() -> pd.DataFrame:
     forecast = pd.read_csv(DATA_DIR / "summary.csv")
     with open(DATA_DIR / "summary_continuous.json", encoding="utf-8") as f:
         cont_raw = json.load(f)
-    continuous = pd.DataFrame(
-        [{"Modelo": m["model_name"], "NSE_cont": m["metrics"]["nse"]} for m in cont_raw]
-    )
+    continuous = pd.DataFrame([
+        {
+            "Modelo": m["model_name"],
+            "NSE_cont": m["metrics"]["nse"],
+            "KGE_cont": m["metrics"]["kge"],
+        }
+        for m in cont_raw
+    ])
     df = forecast.merge(continuous, on="Modelo", how="inner")
     df["label_curto"] = df["Modelo"].map(SHORT_LABELS).fillna(df["Modelo"])
     return df
@@ -145,6 +150,7 @@ y_c = [
     f"Melhor configuração<br><span style='font-size:11px;color:#64748b;'>{melhor_c['label_curto']}</span>",
 ]
 x_c = [pior_c["NSE_cont"], lumped["NSE_cont"], melhor_c["NSE_cont"]]
+kge_c = [pior_c["KGE_cont"], lumped["KGE_cont"], melhor_c["KGE_cont"]]
 classes_c = [classe_moriasi(v) for v in x_c]
 cores_c = [COR_PIOR, COR_BASELINE, COR_MELHOR]
 
@@ -152,11 +158,12 @@ fig.add_trace(go.Bar(
     x=x_c, y=y_c,
     orientation="h",
     marker=dict(color=cores_c, line=dict(color="black", width=0.8)),
-    text=[f"<b>{v:.3f}</b>  ({c})" for v, c in zip(x_c, classes_c)],
+    text=[f"<b>{v:.3f}</b>  ({c}) · KGE = {k:.3f}" for v, c, k in zip(x_c, classes_c, kge_c)],
     textposition="outside",
-    textfont=dict(size=13, color="#0f172a"),
+    textfont=dict(size=12, color="#0f172a"),
     cliponaxis=False,
-    hovertemplate="NSE: %{x:.3f}<extra></extra>",
+    customdata=list(zip(x_c, kge_c)),
+    hovertemplate="NSE: %{customdata[0]:.3f}<br>KGE: %{customdata[1]:.3f}<extra></extra>",
     showlegend=False,
 ), row=1, col=2)
 
