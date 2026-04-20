@@ -42,6 +42,7 @@ st.markdown(
     | 🎯 Hidrograma contínuo — melhor × pior | `/hidrograma_continuo_` | Seção de resultados |
     | 🎯 Eventos de cheia — melhor × pior | `/hidrograma_eventos_` | Seção de resultados |
     | 📊 Ranking NSE com slider de horizonte | `/ranking_nse` | Seção de resultados |
+    | 📊 Ranking NSE na simulação contínua | `/ranking_continuo` | Seção de resultados |
     | 🎯 KPIs da Fase 1 | `/kpis_fase1` | Abertura de resultados |
     | 🔬 Hipóteses H1–H5 | `/hipoteses_h1_h5` | Seção de hipóteses |
     | 🎛️ Parâmetros aprendidos | `/parametros_aprendidos` | Interpretação física |
