@@ -155,10 +155,12 @@ else:
     fig = go.Figure()
     row_q = None
 
-# Observado em preto grosso
+# Observado em preto grosso (sem rolling — permanece fiel ao dado; spline
+# apenas para consistencia visual com as linhas simuladas)
 t_obs = go.Scatter(
     x=obs.index, y=obs.values,
-    mode="lines", line=dict(color="#0f172a", width=2.0),
+    mode="lines",
+    line=dict(color="#0f172a", width=2.2, shape="spline", smoothing=0.6),
     name="Observado",
     hovertemplate="%{x|%d/%m %H:%M}<br>Q_obs = %{y:.1f} m³/s<extra></extra>",
 )
@@ -167,14 +169,17 @@ if row_q is not None:
 else:
     fig.add_trace(t_obs)
 
-# Tres simulacoes sobrepostas
+# Tres simulacoes sobrepostas — rolling de 3 h + spline para suavizar o
+# efeito de "escada" tipico das saidas do modelo em passos de 6 h
 for cfg in MODELOS:
-    pred = dfw[cfg["coluna"]]
+    pred_raw = dfw[cfg["coluna"]]
+    pred = pred_raw.rolling(window=3, center=True, min_periods=1).mean()
     tr = go.Scatter(
         x=pred.index, y=pred.values,
-        mode="lines", line=dict(color=cfg["cor"], width=1.6),
+        mode="lines",
+        line=dict(color=cfg["cor"], width=1.8, shape="spline", smoothing=0.8),
         name=cfg["label"],
-        opacity=0.85,
+        opacity=0.9,
         hovertemplate=(
             f"<b>{cfg['label']}</b><br>"
             "%{x|%d/%m %H:%M}<br>"
