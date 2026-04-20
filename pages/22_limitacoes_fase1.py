@@ -36,40 +36,42 @@ LIMITACOES = [
         "titulo": "2. Período de dados de 5 anos",
         "texto": (
             "O período 2021–2025 pode não capturar toda a variabilidade "
-            "climática interanual. O **teste** (mar–dez/2025) cobre "
-            "predominantemente estação seca e transição para úmida, "
-            "sem incluir o pico da estação úmida (jan–mar). Na Fase 2, "
-            "com bases mais longas e múltiplas bacias, essa limitação "
-            "será atenuada."
+            "climática interanual, especialmente ciclos plurianuais de seca. "
+            "O conjunto de teste (abr–dez/2025) cobre predominantemente o "
+            "período seco e a transição para o período chuvoso, sem incluir "
+            "o pico da estação úmida (jan–mar). Na Fase 2, com "
+            "aproximadamente 100 bacias e períodos mais longos, esta "
+            "limitação será atenuada pela diversidade de condições hidrológicas."
         ),
     },
     {
         "titulo": "3. Escoamento de base implícito",
         "texto": (
-            "Os módulos TTD e SCS-CN representam **apenas o escoamento "
-            "direto**. A componente lenta (*baseflow*) é capturada "
-            "implicitamente pela memória de 240 h da LSTM. A separação "
-            "explícita via filtro digital diferenciável (Eckhardt, 2005) "
-            "ou módulo VIC (MGB) é aprimoramento planejado."
+            "Os módulos TTD e SCS-CN representam exclusivamente o escoamento "
+            "direto. A componente lenta (*baseflow*) é capturada implicitamente "
+            "pela memória de 240 h da LSTM. A separação explícita via filtro "
+            "digital (Nathan, 1990; Eckhardt, 2005) é aprimoramento planejado."
         ),
     },
     {
         "titulo": "4. IUH gaussiano (simétrico)",
         "texto": (
-            "O hidrograma unitário real é **assimétrico** (ascensão rápida, "
-            "recessão lenta), mas usamos *kernel* gaussiano (simétrico) por "
-            "parcimônia e estabilidade numérica. A LSTM compensa a "
-            "assimetria residualmente. Substituição por distribuição gamma "
-            "ou IUH discreto está no *roadmap* do Artigo 1."
+            "O hidrograma unitário derivado do método de Maidment é tipicamente "
+            "assimétrico (ascensão rápida, recessão lenta), enquanto o "
+            "*kernel* gaussiano é simétrico. A escolha prioriza parcimônia "
+            "e estabilidade numérica; a LSTM atua como compensador residual. "
+            "Alternativas igualmente diferenciáveis, como distribuição gamma "
+            "(Nash, 1957) ou log-normal, estão planejadas para investigação na Fase 2."
         ),
     },
     {
         "titulo": "5. Ausência de comparação com modelos externos",
         "texto": (
-            "A Fase 1 comparou apenas configurações internas do *framework*. "
-            "Comparação com **GR4J, HBV, EA-LSTM e δHBV** está planejada "
-            "para o Artigo 1 — essencial para contextualizar o desempenho "
-            "no estado da arte internacional."
+            "A Fase 1 comparou apenas configurações internas do *framework*, "
+            "o que permite isolar a contribuição de cada componente. "
+            "Comparação com GR4J, HBV e EA-LSTM (Kratzert, 2019) está "
+            "planejada para o Artigo 1, essencial para contextualizar o "
+            "desempenho no estado da arte internacional."
         ),
     },
     {

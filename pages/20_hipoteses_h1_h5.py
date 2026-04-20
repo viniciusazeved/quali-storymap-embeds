@@ -57,13 +57,16 @@ HYPOTHESES = [
         "name": "Parâmetros ajustáveis &gt; fixos",
         "test": "Pares aprendível vs fixo",
         "prev": ("✅", "Confirmada", "média: +18,3 % NSE 6 h"),
-        "cont": ("❌", "Rejeitada", "TTD Base: fixo 0,82 &gt; ajust 0,70"),
+        "cont": ("❌", "Rejeitada", "para TTD Base: fixo 0,82 &gt; ajust 0,70"),
         "summary": (
-            "Parâmetros ajustáveis <b>otimizam a previsão de curto prazo</b>; "
-            "parâmetros <b>fixos</b> atuam como regularização física e "
-            "<b>generalizam melhor na simulação contínua</b>. Este é o "
-            "<b>trade-off central</b> da Fase 1 — não estava entre as "
-            "hipóteses originais e motivou a discussão aprofundada no Cap. 4."
+            "Na previsão, parâmetros ajustáveis melhoram o NSE em 18,3 % na "
+            "média. Na simulação contínua, o efeito depende da formulação de "
+            "<i>T<sub>c</sub></i>: para TTD Base, parâmetros fixos superam os "
+            "ajustáveis (0,82 vs 0,70); para TTD Manning, parâmetros ajustáveis "
+            "são superiores (0,81 vs 0,54); para TTD Base+SCS, ajustáveis "
+            "também superam (0,76 vs 0,67). Este comportamento assimétrico "
+            "caracteriza o <i>trade-off</i> entre otimização de curto prazo "
+            "e generalização temporal, discutido na Seção 4.7 da qualificação."
         ),
     },
     {
@@ -85,7 +88,7 @@ HYPOTHESES = [
         "name": "Modelo completo &gt; modelos de referência",
         "test": "TTD-SCS-LSTM vs LSTM puro / Lumped",
         "prev": ("✅", "Confirmada", "+35,5 % vs LSTM; +55,6 % vs Lumped"),
-        "cont": ("✅", "Confirmada", "+22 % em NSE contínuo"),
+        "cont": ("✅", "Confirmada", "+21,0 % vs LSTM; +34,4 % vs Lumped"),
         "summary": (
             "O modelo híbrido supera os modelos de referência em <b>ambas as "
             "abordagens</b> e em margem expressiva — demonstra que a física "

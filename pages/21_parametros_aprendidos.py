@@ -184,22 +184,20 @@ st.markdown(
 **Interpretação física.** Os parâmetros convergidos têm leitura direta do
 ponto de vista hidrológico:
 
-- **t<sub>c,scale</sub> ≈ 1,2–1,3** para modelos Base e Manning: a bacia **responde 20–30 % mais
-  lentamente** que o estimado pelo método de Maidment, possivelmente
-  indicando efeito de armazenamento temporário em planícies de inundação
-  ou subestimativa sistemática do método clássico para bacias deste porte
-  (3.117 km²).
+- **t<sub>c,scale</sub> ≈ 1,2–1,3** para modelos Base e Manning: a bacia
+  responde 20–30 % mais lentamente que o estimado pelo método de Maidment,
+  possivelmente indicando efeito de armazenamento temporário em planícies
+  de inundação e reservatórios não representados pela formulação
+  topográfica pura.
 
-- **σ ≈ 4–5 h** (Base, Manning): hidrogramas com dispersão maior que o
-  valor fixo de referência (3 h). Em configurações com SCS-CN, σ cresce
-  ainda mais (~12–14 h), refletindo a combinação da abstração inicial
-  com a propagação distribuída.
+- **σ ≈ 4–5 h** (Base, Manning): os valores maiores de σ refletem
+  hidrogramas mais dispersos, com resposta suavizada. Em configurações
+  com SCS-CN, σ cresce ainda mais (~12–14 h).
 
-- **λ convergiu para 0,06–0,17** — consistente com ValleJunior *et al.*
+- **λ convergiu para 0,06–0,17**, consistente com ValleJunior *et al.*
   (2019) para bacias tropicais brasileiras (mediana 0,045) e
-  **substancialmente inferior** ao padrão 0,20 de condições
-  norte-americanas (Woodward *et al.*, 2003). Isso reforça a necessidade
-  de calibração regional do SCS-CN para aplicações no Brasil.
+  substancialmente inferior ao padrão 0,20 estabelecido para condições
+  norte-americanas (Woodward *et al.*, 2003).
     """,
     unsafe_allow_html=True,
 )
