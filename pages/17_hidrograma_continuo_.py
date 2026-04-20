@@ -32,7 +32,7 @@ st.set_page_config(
 )
 hide_streamlit_chrome()
 
-DATA_FILE = Path(__file__).parent.parent / "data" / "hidrogramas_continuos.csv"
+DATA_FILE = Path(__file__).parent.parent / "data" / "continuo_3modelos.json"
 
 # Configuracoes em ordem de desempenho (melhor -> pior)
 MODELOS = [
@@ -59,25 +59,20 @@ MODELOS = [
 
 @st.cache_data(show_spinner=False)
 def _load() -> pd.DataFrame:
-    df = pd.read_csv(DATA_FILE, parse_dates=["timestamp"])
-    return df.set_index("timestamp").sort_index()
+    import json
+    with open(DATA_FILE, encoding="utf-8") as f:
+        raw = json.load(f)
+    df = pd.DataFrame({
+        "Q_obs": raw["Q_obs"],
+        "Q_sim_Base_Fixed": raw["Q_sim_Base_Fixed"],
+        "Q_sim_Lumped": raw["Q_sim_Lumped"],
+        "Q_sim_Manning_Fixed": raw["Q_sim_Manning_Fixed"],
+        "P_mean": raw["P_mean"],
+    }, index=pd.to_datetime(raw["timestamps"]))
+    return df.sort_index()
 
 
 df = _load()
-
-# Blindagem — garante que o CSV tem as colunas esperadas. Se o deploy do
-# Streamlit Cloud ficou com versao antiga do arquivo, emite mensagem clara
-# em vez de crashar com KeyError.
-_REQUIRED = ["Q_obs", "P_mean"] + [m["coluna"] for m in MODELOS]
-_missing = [c for c in _REQUIRED if c not in df.columns]
-if _missing:
-    st.error(
-        f"CSV `hidrogramas_continuos.csv` sem as colunas esperadas: "
-        f"{', '.join(_missing)}. Colunas disponíveis: {list(df.columns)}. "
-        "Se você acabou de fazer deploy, faça *Reboot* no painel do "
-        "Streamlit Cloud para recarregar os arquivos de dados."
-    )
-    st.stop()
 ts_min = df.index.min().to_pydatetime()
 ts_max = df.index.max().to_pydatetime()
 
