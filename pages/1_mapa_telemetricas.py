@@ -46,8 +46,7 @@ with c2:
 with c3:
     st.caption(
         "Rede fluviométrica telemétrica do Brasil — transmissão automática, "
-        "vazão horária ou sub-horária. Fonte: HidroWeb/ANA (abril/2026). "
-        "★ amarelo destaca a bacia do estudo (Manuel Duarte)."
+        "vazão horária ou sub-horária. Fonte: HidroWeb/ANA (abril/2026)."
     )
 
 # ---------------------------------------------------------------------------
