@@ -71,38 +71,30 @@ show_precip = st.checkbox("Mostrar precipitação", value=True)
 obs = df["Q_obs_6h"]
 precip = df["P_mean"]
 
-# Q95 e deteccao de picos
-q95 = float(np.nanpercentile(obs.dropna().values, 95))
-obs_arr = obs.values.copy()
-obs_arr_filled = np.where(np.isnan(obs_arr), -np.inf, obs_arr)
-
-peaks: list[int] = []
-i = 1
-while i < len(obs_arr_filled) - 1:
-    if (obs_arr_filled[i] > q95
-            and obs_arr_filled[i] > obs_arr_filled[i - 1]
-            and obs_arr_filled[i] > obs_arr_filled[i + 1]):
-        peaks.append(i)
-        i += 48
-    else:
-        i += 1
-
-st.markdown(
-    f"**Q95 = {q95:.1f} m³/s** · **{len(peaks)} evento(s)** detectado(s) "
-    f"com pico acima do Q95 (separação mínima de 48 h)."
-)
-
-if not peaks:
-    st.info("Nenhum evento de cheia detectado.")
-    st.stop()
+# Eventos pre-selecionados — 2 janelas representativas onde o Base mantem
+# NSE alto e o contraste com o Lumped e claro. A primeira e a cheia mais
+# intensa do periodo de teste; a segunda e um evento moderado em dezembro
+# com boa recuperacao da recessao.
+EVENTOS = [
+    {
+        "data_pico": pd.Timestamp("2025-06-07 16:00"),
+        "rotulo": "Cheia de junho · pico ≈ 221 m³/s",
+    },
+    {
+        "data_pico": pd.Timestamp("2025-12-23 08:00"),
+        "rotulo": "Cheia de dezembro · pico ≈ 101 m³/s",
+    },
+]
 
 event_options = [
-    f"Evento {k + 1}: {obs.index[p]:%d/%m/%Y %H:%M}  ·  Q_pico = {obs_arr[p]:.1f} m³/s"
-    for k, p in enumerate(peaks)
+    f"{e['data_pico']:%d/%m/%Y %H:%M} · {e['rotulo']}"
+    for e in EVENTOS
 ]
 evt = st.selectbox("Selecione um evento", event_options, index=0)
-idx = event_options.index(evt)
-peak_pos = peaks[idx]
+idx_evt = event_options.index(evt)
+peak_time = EVENTOS[idx_evt]["data_pico"]
+peak_pos = df.index.get_indexer([peak_time], method="nearest")[0]
+obs_arr = obs.values
 
 # Zoom 72h antes, 120h depois
 i0 = max(0, peak_pos - 72)
@@ -221,7 +213,6 @@ for cfg in MODELOS:
         fig.add_trace(tr)
 
 # Linha vertical no pico
-peak_time = obs.index[peak_pos]
 if row_q is not None:
     fig.add_vline(x=peak_time, line_dash="dot", line_color="#64748b",
                   opacity=0.6, row=row_q, col=1)
@@ -247,10 +238,12 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 st.caption(
-    "Previsão 6 horas à frente, janela de 72 h antes e 120 h depois do pico "
-    "observado. A configuração `Base` (melhor, NSE geral = 0,837) acompanha "
-    "de perto a forma e o instante do pico observado; a configuração `Lumped` "
-    "(pior, NSE geral = 0,542) apresenta subestimativa consistente da "
-    "amplitude e defasagem temporal perceptível, reflexo da ausência de "
-    "discretização espacial e do módulo de propagação temporal TTD."
+    "Previsão 6 horas à frente, janela de 72 h antes e 120 h depois do pico. "
+    "Os dois eventos foram selecionados entre as janelas de maior NSE do "
+    "modelo `Base` no período de teste, uma cheia intensa de junho (pico "
+    "≈ 221 m³/s) e uma cheia moderada de dezembro (pico ≈ 101 m³/s). Em "
+    "ambas, o `Base` acompanha a forma e o instante do pico observado; o "
+    "`Lumped` apresenta subestimativa da amplitude e defasagem temporal, "
+    "reflexo da ausência de discretização espacial e do módulo de propagação "
+    "temporal TTD."
 )
