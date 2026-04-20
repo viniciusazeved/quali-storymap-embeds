@@ -327,8 +327,8 @@ with tab_eventos:
             pico_o = float(o_e.max())
             pico_p = float(p_e.max())
             err_p = 100 * (pico_p - pico_o) / pico_o if pico_o > 0 else float("nan")
-            vol_o = float(np.trapz(o_e))
-            vol_p = float(np.trapz(p_e))
+            vol_o = float(np.trapezoid(o_e))
+            vol_p = float(np.trapezoid(p_e))
             err_vol = 100 * (vol_p - vol_o) / vol_o if vol_o > 0 else float("nan")
         else:
             nse_e = pbias_e = pico_o = pico_p = err_p = err_vol = float("nan")
