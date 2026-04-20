@@ -41,6 +41,7 @@ st.markdown(
     | 🎯 Melhor × pior por modo | `/melhor_pior_modo` | Seção de resultados |
     | 🎯 Hidrograma contínuo — melhor × pior | `/hidrograma_continuo_` | Seção de resultados |
     | 🎯 Eventos de cheia — melhor × pior | `/hidrograma_eventos_` | Seção de resultados |
+    | 📊 Ranking NSE com slider de horizonte | `/ranking_nse` | Seção de resultados |
 
     Novos widgets vão sendo adicionados conforme a narrativa do StoryMap se
     desenha. Todos usam os mesmos dados do app principal (snapshot dos

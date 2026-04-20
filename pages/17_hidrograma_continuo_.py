@@ -64,6 +64,20 @@ def _load() -> pd.DataFrame:
 
 
 df = _load()
+
+# Blindagem — garante que o CSV tem as colunas esperadas. Se o deploy do
+# Streamlit Cloud ficou com versao antiga do arquivo, emite mensagem clara
+# em vez de crashar com KeyError.
+_REQUIRED = ["Q_obs", "P_mean"] + [m["coluna"] for m in MODELOS]
+_missing = [c for c in _REQUIRED if c not in df.columns]
+if _missing:
+    st.error(
+        f"CSV `hidrogramas_continuos.csv` sem as colunas esperadas: "
+        f"{', '.join(_missing)}. Colunas disponíveis: {list(df.columns)}. "
+        "Se você acabou de fazer deploy, faça *Reboot* no painel do "
+        "Streamlit Cloud para recarregar os arquivos de dados."
+    )
+    st.stop()
 ts_min = df.index.min().to_pydatetime()
 ts_max = df.index.max().to_pydatetime()
 

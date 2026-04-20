@@ -58,6 +58,18 @@ def _load() -> pd.DataFrame:
 
 df = _load()
 
+# Blindagem — evita KeyError quando o Cloud esta com deploy parcial (codigo
+# novo mas CSV antigo). Mostra mensagem acionavel em vez de crashar.
+_REQUIRED = ["Q_obs_6h", "P_mean"] + [m["coluna"] for m in MODELOS]
+_missing = [c for c in _REQUIRED if c not in df.columns]
+if _missing:
+    st.error(
+        f"CSV `hidrogramas.csv` sem as colunas esperadas: "
+        f"{', '.join(_missing)}. Se você acabou de fazer deploy, faça "
+        "*Reboot* no painel do Streamlit Cloud para recarregar os dados."
+    )
+    st.stop()
+
 show_precip = st.checkbox("Mostrar precipitação", value=True)
 
 obs = df["Q_obs_6h"]
