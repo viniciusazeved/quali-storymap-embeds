@@ -31,7 +31,7 @@ st.set_page_config(
 )
 hide_streamlit_chrome()
 
-DATA_FILE = Path(__file__).parent.parent / "data" / "hidrogramas_v2.csv"
+DATA_FILE = Path(__file__).parent.parent / "data" / "eventos_base_lumped.json"
 
 # Configuracoes em ordem de desempenho (melhor -> pior)
 MODELOS = [
@@ -52,23 +52,19 @@ MODELOS = [
 
 @st.cache_data(show_spinner=False)
 def _load() -> pd.DataFrame:
-    df = pd.read_csv(DATA_FILE, parse_dates=["timestamp"])
-    return df.set_index("timestamp").sort_index()
+    import json
+    with open(DATA_FILE, encoding="utf-8") as f:
+        raw = json.load(f)
+    df = pd.DataFrame({
+        "Q_obs_6h": raw["Q_obs_6h"],
+        "Q_pred_Base_6h": raw["Q_pred_Base_6h"],
+        "Q_pred_Lumped_6h": raw["Q_pred_Lumped_6h"],
+        "P_mean": raw["P_mean"],
+    }, index=pd.to_datetime(raw["timestamps"]))
+    return df.sort_index()
 
 
 df = _load()
-
-# Blindagem — evita KeyError quando o Cloud esta com deploy parcial (codigo
-# novo mas CSV antigo). Mostra mensagem acionavel em vez de crashar.
-_REQUIRED = ["Q_obs_6h", "P_mean"] + [m["coluna"] for m in MODELOS]
-_missing = [c for c in _REQUIRED if c not in df.columns]
-if _missing:
-    st.error(
-        f"CSV `hidrogramas.csv` sem as colunas esperadas: "
-        f"{', '.join(_missing)}. Se você acabou de fazer deploy, faça "
-        "*Reboot* no painel do Streamlit Cloud para recarregar os dados."
-    )
-    st.stop()
 
 show_precip = st.checkbox("Mostrar precipitação", value=True)
 
