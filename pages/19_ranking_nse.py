@@ -67,59 +67,31 @@ horizon = st.select_slider(
 )
 
 # ---------------------------------------------------------------------------
-# Grafico de barras horizontais
+# Grafico de barras horizontais (estilo do app principal)
 # ---------------------------------------------------------------------------
 d = df.sort_values(horizon, ascending=True).copy()
+horizon_label = horizon.replace("NSE_", "")
 
 fig = go.Figure(go.Bar(
     x=d[horizon],
-    y=d["label_curto"],
+    y=d["Modelo"],
     orientation="h",
     marker=dict(
         color=d[horizon],
         colorscale=[[0, "#fee2e2"], [0.5, "#fef3c7"], [1, "#15803d"]],
-        cmin=0.5, cmax=0.85,
         showscale=False,
-        line=dict(color="black", width=0.6),
     ),
-    text=[f"<b>{v:.3f}</b>" for v in d[horizon]],
+    text=d[horizon].round(3),
     textposition="outside",
-    textfont=dict(size=12, color="#0f172a"),
-    cliponaxis=False,
     hovertemplate="<b>%{y}</b><br>NSE: %{x:.3f}<extra></extra>",
 ))
 
-# Linha de corte Moriasi (NSE = 0,75)
-fig.add_vline(
-    x=0.75, line_dash="dot", line_color="#16a34a", line_width=1.5,
-    annotation_text="Muito Bom (Moriasi, 2007)",
-    annotation_position="top right",
-    annotation_font_color="#166534",
-    annotation_font_size=10,
-)
-
-# Linha de corte Moriasi inferior (NSE = 0,50, Satisfatorio)
-fig.add_vline(
-    x=0.50, line_dash="dot", line_color="#94a3b8", line_width=1,
-    annotation_text="Satisfatório ≥ 0,50",
-    annotation_position="bottom right",
-    annotation_font_color="#64748b",
-    annotation_font_size=9,
-)
-
-horizon_label = horizon.replace("NSE_", "")
 fig.update_layout(
+    title=f"Ranking de modelos — NSE {horizon_label}",
     template="plotly_white",
-    xaxis=dict(
-        title=f"<b>NSE — previsão {horizon_label} à frente</b>",
-        range=[0.40, 0.92],
-        gridcolor="#f1f5f9",
-    ),
-    yaxis=dict(title="", gridcolor="#f1f5f9", tickfont=dict(size=12)),
-    height=490,
-    margin=dict(l=20, r=40, t=20, b=40),
-    plot_bgcolor="white",
-    bargap=0.25,
+    xaxis_title="NSE",
+    xaxis=dict(range=[0.4, 0.9]),
+    height=500,
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -132,14 +104,11 @@ bot = d.iloc[0]
 count_vb = int((df[horizon] >= 0.75).sum())
 
 st.caption(
-    f"**Horizonte {horizon_label}** — Líder: `{top['Modelo']}` "
-    f"(NSE = {top[horizon]:.3f}). Último: `{bot['Modelo']}` "
-    f"(NSE = {bot[horizon]:.3f}). "
-    f"{count_vb} de {len(df)} configurações classificam-se como "
-    f"*Muito Bom* (NSE ≥ 0,75) neste horizonte. "
-    f"O ranking se reordena em função do horizonte: o `LSTM_TTD_Base` "
-    f"domina horizontes de 1 a 6 h, enquanto o `LSTM_TTD_Manning_SCS` "
-    f"desponta em 24 h (NSE = 0,828), sugerindo que a combinação de "
-    f"rugosidade por uso do solo e SCS-CN com parâmetros aprendíveis "
-    f"modula melhor a resposta em horizontes longos."
+    f"Três padrões: (1) modelos *lumped* e LSTM puro formam o grupo "
+    f"inferior (NSE < 0,66); (2) modelos TTD sem SCS com parâmetros "
+    f"aprendíveis **dominam o horizonte de 6 h**; (3) o SCS-CN em geral "
+    f"**degrada** a previsão de curto prazo (6 a 9,5%), mas o caso "
+    f"específico **LSTM_TTD_Manning_SCS** se destaca em **24 h** "
+    f"(NSE = 0,828), sugerindo que a combinação Manning + SCS com "
+    f"parâmetros aprendíveis modula melhor a abstração em horizontes longos."
 )
