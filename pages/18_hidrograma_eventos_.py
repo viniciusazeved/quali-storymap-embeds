@@ -31,7 +31,7 @@ st.set_page_config(
 )
 hide_streamlit_chrome()
 
-DATA_FILE = Path(__file__).parent.parent / "data" / "hidrogramas.csv"
+DATA_FILE = Path(__file__).parent.parent / "data" / "hidrogramas_v2.csv"
 
 # Configuracoes em ordem de desempenho (melhor -> pior)
 MODELOS = [
