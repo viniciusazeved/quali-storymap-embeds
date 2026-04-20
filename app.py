@@ -38,6 +38,7 @@ st.markdown(
     |---|---|---|
     | 🗺️ Mapa das estações telemétricas | `/mapa_telemetricas` | Seção "A rede telemétrica" |
     | 📊 Trade-off previsão × simulação | `/tradeoff` | Seção "O trade-off" |
+    | 🎯 Melhor × pior por modo | `/melhor_pior_modo` | Seção de resultados |
 
     Novos widgets vão sendo adicionados conforme a narrativa do StoryMap se
     desenha. Todos usam os mesmos dados do app principal (snapshot dos
